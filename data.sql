@@ -5,8 +5,8 @@
 CREATE TABLE tblcountry
 (
 	name VARCHAR2(30) NOT NULL PRIMARY KEY, -- 국가명
-	capital VARCHAR2(30) NULL, -- 수도
-	population NUMBER NULL, -- 인구수
+	capital VARCHAR2(30) NULL,  -- 수도
+	population NUMBER NULL,     -- 인구수
 	continent VARCHAR2(2) NULL, -- 대륙(AS, NA, SA..)
 	area NUMBER NULL -- 면적
 );

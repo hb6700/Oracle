@@ -138,7 +138,7 @@ DROP TABLE tblType;
 
 -- 테이블 데이터 추가
 --insert into 테이블 (컬럼) values (값);
---#정수형
+-- #숫자형
 INSERT INTO tblType (num) VALUES (100);      --정수 리터럴
 INSERT INTO tblType (num) VALUES (3.14);     --실수 리터럴
 INSERT INTO tblType (num) VALUES (3.99);     --실수 리터럴, 반올림 > 4

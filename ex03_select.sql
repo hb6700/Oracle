@@ -1,6 +1,6 @@
 --ex03_select.sql
 /*
-SQL, Query(질의)
+SQL > Query(질의)
 
 SELECT문
 - DML, DQL

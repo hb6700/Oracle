@@ -8,5 +8,6 @@ create table zipcode  (
 	constraint PK_ZIPCODE primary key (seq)
 );
 
+-- zipcode.csv 파일 확인
 select * from zipcode;
 
