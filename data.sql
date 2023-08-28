@@ -56,6 +56,9 @@ INSERT INTO tblComedian VALUES ('민상', '유', 'm', 183, 129, '이십끼');
 
 COMMIT;
 
+SELECT * FROM tblComedian;
+
+DROP TABLE tblComedian;
 
 
 
