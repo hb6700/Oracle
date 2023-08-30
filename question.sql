@@ -248,6 +248,7 @@ SELECT sum(basicpay) + sum(sudang) FROM tblinsa WHERE city = '서울';
 SELECT * FROM tblinsa;
 SELECT sum(basicpay) FROM tblinsa WHERE jikwi IN ('부장', '과장'); 
 
+
 --avg()
 --1. 아시아에 속한 국가의 평균 인구수? tblCountry > 39,165
 SELECT * FROM tblcountry;
@@ -265,28 +266,13 @@ SELECT trunc(avg(basicpay), 2) FROM tblinsa WHERE jikwi IN ('부장', '과장');
 SELECT * FROM tblinsa;
 SELECT trunc(avg(basicpay), 2) FROM tblinsa WHERE jikwi IN ('대리', '사원'); 
 
---★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 --5. 장급(부장,과장)의 평균 급여와 사원급(대리,사원)의 평균 급여의 차액? tblInsa > 1,150,320
 SELECT * FROM tblinsa;
-SELECT 
-	avg(sum(basicpay)),
-	avg(sum(basicpay))
-	--avg(basicpay)-avg(basicpay)
-FROM tblinsa 
-WHERE
-	jikwi IN ('부장', '과장'),
-	jikwi IN ('대리', '사원');
-	--jikwi IN ('부장', '과장') - jikwi IN ('대리', '사원');
+ 
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE jikwi IN ('부장', '과장');
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE jikwi IN ('대리', '사원');
+SELECT round(avg(CASE WHEN jikwi IN ('부장', '과장') THEN basicpay END)-avg(CASE WHEN jikwi IN ('대리', '사원') THEN basicpay END)) AS 장급 FROM tblinsa;
 
-SELECT
-	avg(count(CASE
-		WHEN basicpayjikwi IN ('부장', '과장')
-	END))
-	- avg(CASE
-		WHEN jikwi IN ('대리', '사원')
-	END
-	)
-FROM tblinsa;
 
 --max(),min()
 --1. 면적이 가장 넓은 나라의 면적은? tblCountry > 959
@@ -297,57 +283,112 @@ SELECT max(area) FROM tblcountry
 SELECT * FROM tblinsa;
 SELECT min(basicpay + sudang) FROM tblinsa;
 
-
 -------------------------------------------------------------------------------------------------------
-
 
 -- 문제05.sql
 -- 정렬
-
 
 -- employees
 -- 1. 전체 이름(first_name + last_name)이 가장 긴 -> 짧은 사람 순으로 정렬해서 가져오기
 --    > 컬럼 리스트 > fullname(first_name + last_name), length(fullname)
 SELECT * FROM employees;
-SELECT 
+
+SELECT * FROM employees ORDER BY (length(first_name || last_name)) DESC;
 
 -- 2. 전체 이름(first_name + last_name)이 가장 긴 사람은 몇글자? 가장 짧은 사람은 몇글자? 평균 몇글자?
 --    > 컬럼 리스트 > 숫자 3개 컬럼
+SELECT * FROM employees;
+
+SELECT 
+	max(length(first_name || last_name)) AS max,
+	min(length(first_name || last_name)) AS min,
+	avg(length(first_name || last_name)) AS avg
+FROM employees;
 
 -- 3. last_name이 4자인 사람들의 first_name을 가져오기
 --    > 컬럼 리스트 > first_name, last_name
 --    > 정렬(first_name, 오름차순)
-
+SELECT * FROM employees;
+SELECT length(last_name), (CASE WHEN length(last_name) = 4 THEN first_name END) AS "first_name(last_name : 4)" FROM employees;
 
 -- decode
-
 -- 4. tblInsa. 부장 몇명? 과장 몇명? 대리 몇명? 사원 몇명?
 SELECT * FROM tblinsa;
 
-SELECT 
-	count(CASE
-		WHEN jikwi = '부장' THEN 1
-	END) AS 부장, 
-	count(CASE
-		WHEN jikwi = '과장' THEN 1
-	END) AS 과장,
-	count(CASE
-		WHEN jikwi = '대리' THEN 1
-	END) AS 대리,
-	count(CASE
-		WHEN jikwi = '사원' THEN 1
-	END) AS 사원
+SELECT
+	count(decode(to_char(jikwi), '부장', 1)) AS 부장,
+	count(decode(to_char(jikwi), '과장', 1)) AS 과장,
+	count(decode(to_char(jikwi), '대리', 1)) AS 대리,
+	count(decode(to_char(jikwi), '사원', 1)) AS 사원
 FROM tblinsa;
 
+--SELECT 
+--	count(CASE
+--		WHEN jikwi = '부장' THEN 1
+--	END) AS 부장, 
+--	count(CASE
+--		WHEN jikwi = '과장' THEN 1
+--	END) AS 과장,
+--	count(CASE
+--		WHEN jikwi = '대리' THEN 1
+--	END) AS 대리,
+--	count(CASE
+--		WHEN jikwi = '사원' THEN 1
+--	END) AS 사원
+--FROM tblinsa;
+
 -- 5. tblInsa. 간부(부장, 과장) 몇명? 사원(대리, 사원) 몇명?
+--SELECT 
+--	count(CASE WHEN jikwi IN ('부장', '과장') THEN 1 END) AS 간부, 
+--	count(CASE WHEN jikwi IN ('대리', '사원') THEN 1 END) AS 사원
+--FROM tblinsa;
 
-
+SELECT
+	count(decode(to_char(jikwi), '부장', 1, '과장', 1 )) AS 간부,
+	count(decode(to_char(jikwi), '대리', 1, '사원', 1 )) AS 사원
+FROM tblinsa;
 
 -- 6. tblInsa. 기획부, 영업부, 총무부, 개발부의 각각 평균 급여?
+SELECT * FROM tblinsa;
+
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE buseo = '기획부';
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE buseo = '영업부';
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE buseo = '총무부';
+--SELECT round(avg(basicpay)) FROM tblinsa WHERE buseo = '개발부';
+
+SELECT
+	round(avg(CASE WHEN buseo = '기획부' THEN basicpay END)) AS 기획부,
+	round(avg(CASE WHEN buseo = '영업부' THEN basicpay END)) AS 영업부,
+	round(avg(CASE WHEN buseo = '총무부' THEN basicpay END)) AS 총무부,
+	round(avg(CASE WHEN buseo = '개발부' THEN basicpay END)) AS 개발부
+FROM tblinsa;
+
 
 -- 7. tblInsa. 남자 직원 가장 나이가 많은 사람이 몇년도 태생? 여자 직원 가장 나이가 어린 사람이 몇년도 태생?
+SELECT * FROM tblinsa;
+
+--SELECT
+--	CASE WHEN min(substr(ssn, 1, 2)) THEN substr(ssn, 1, 2) END AS 나이많은남자	
+--FROM tblinsa
+--ORDER BY substr(ssn, 1, 2);
+
+SELECT substr(ssn, 8, 1) FROM tblinsa;
+
+SELECT
+	CASE WHEN substr(ssn, 8, 1) = '1' THEN min(substr(ssn, 1, 2)) END AS 나이많은남자,
+	min(substr(ssn, 1, 2)) AS 나이많은남자,
+	max(substr(ssn, 1, 2)) AS 나이어린여자
+FROM tblinsa;
 
 
+SELECT
+	min(substr(ssn, 1, 2)) AS 나이많은남자
+FROM tblinsa
+WHERE substr(ssn, 8, 1) = '1';
 
 
-
+SELECT
+	CASE
+		WHEN substr(ssn, 8, 1) = '1' THEN min(substr(ssn, 1, 2))
+	END
+FROM tblinsa;
