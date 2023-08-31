@@ -364,6 +364,28 @@ SELECT
 FROM tblinsa;
 
 
+select
+    count(decode(buseo, '기획부', 1)) as 기획부,
+    count(decode(buseo, '영업부', 1)) as 영업부,
+    count(decode(buseo, '총무부', 1)) as 총무부,
+    count(decode(buseo, '개발부', 1)) as 개발부
+from tblInsa;
+
+select
+    decode(buseo, '기획부', basicpay) as 기획부,
+    decode(buseo, '영업부', basicpay) as 영업부,
+    decode(buseo, '총무부', basicpay) as 총무부,
+    decode(buseo, '개발부', basicpay) as 개발부
+from tblInsa;
+
+select
+    round(avg(decode(buseo, '기획부', basicpay))) as 기획부,
+    round(avg(decode(buseo, '영업부', basicpay))) as 영업부,
+    round(avg(decode(buseo, '총무부', basicpay))) as 총무부,
+    round(avg(decode(buseo, '개발부', basicpay))) as 개발부
+from tblInsa;
+
+
 -- 7. tblInsa. 남자 직원 가장 나이가 많은 사람이 몇년도 태생? 여자 직원 가장 나이가 어린 사람이 몇년도 태생?
 SELECT * FROM tblinsa;
 
@@ -392,3 +414,158 @@ SELECT
 		WHEN substr(ssn, 8, 1) = '1' THEN min(substr(ssn, 1, 2))
 	END
 FROM tblinsa;
+
+
+select
+    '19' || min(decode(substr(ssn, 8, 1), '1', substr(ssn, 1, 2))),
+    '19' || max(decode(substr(ssn, 8, 1), '2', substr(ssn, 1, 2)))
+from tblInsa;
+
+-------------------------------------------------------------------------------------------------------
+
+--문제6.sql
+
+--1. traffic_accident. 각 교통 수단 별(지하철, 철도, 항공기, 선박, 자동차) 발생한 총 교통 사고 발생 수, 총 사망자 수, 사건 당 평균 사망자 수를 가져오시오.
+SELECT * FROM traffic_accident;
+        
+--2. tblZoo. 종류(family)별 평균 다리의 갯수를 가져오시오.
+SELECT * FROM tblzoo;
+
+SELECT family, round(avg(leg))
+FROM tblzoo
+GROUP BY family;
+
+--3. tblZoo. 체온이 변온인 종류 중 아가미 호흡과 폐 호흡을 하는 종들의 갯수를 가져오시오.
+SELECT * FROM tblzoo;
+
+SELECT count(*) FROM tblzoo WHERE breath = 'lung' AND thermo = 'variable';	--변온, 폐 > 36
+SELECT count(*) FROM tblzoo WHERE breath = 'gill' AND thermo = 'variable';	--변온, 아가미 > 30
+
+SELECT
+	breath AS 호흡종류,
+	count(*) AS "종의 갯수"
+FROM tblzoo
+WHERE thermo = 'variable'
+GROUP BY breath;
+
+--4. tblZoo. 사이즈와 종류별로 그룹을 나누고 각 그룹의 갯수를 가져오시오.
+SELECT * FROM tblzoo;
+
+SELECT
+	family,
+	sizeof,
+	count(*)
+FROM tblzoo
+GROUP BY (family, sizeof)
+ORDER BY family;
+
+--12. tblAddressBook. 관리자의 실수로 몇몇 사람들의 이메일 주소가 중복되었다. 중복된 이메일 주소만 가져오시오.
+SELECT * FROM tbladdressbook;
+
+SELECT
+	*
+FROM tbladdressbook
+
+
+--15. tblAddressBook. 성씨별 인원수가 100명 이상 되는 성씨들을 가져오시오.
+SELECT * FROM tbladdressbook;
+
+--이거 실행하니까 데이터가 두배로 또 늘었음
+SELECT
+	substr(name, 1, 1) AS 성씨,
+	count(*) AS 인원수
+FROM tbladdressbook
+GROUP BY substr(name, 1, 1)
+HAVING count(*) > 100;
+
+SELECT 
+	buseo,
+	count(*)
+FROM tblinsa
+GROUP BY buseo
+HAVING count(*) > 10;
+
+DELETE FROM tbladdressbook WHERE seq > 2000;
+COMMIT;
+
+SELECT substr(address, 1, instr(address, ' ') - 1) AS 시도, count(*) AS 인원수
+FROM tbladdressbook
+GROUP BY substr(address, 1, instr(address, ' ') -1)
+ORDER BY 인원수 desc;
+
+--17. tblAddressBook. 이메일이 스네이크 명명법으로 만들어진 사람들 중에서 여자이며, 20대이며, 키가 150~160cm 사이며, 고향이 서울 또는 인천인 사람들만 가져오시오.
+SELECT * FROM tbladdressbook;
+
+SELECT 
+	name
+FROM tbladdressbook
+WHERE 
+
+--20. tblAddressBook. '건물주'와 '건물주자제분'들의 거주지가 서울과 지방의 비율이 어떻게 되느냐?
+SELECT * FROM tbladdressbook
+
+SELECT
+	count(job IN ('건물주', '건물주자제분'))
+FROM tbladdressbook
+WHERE job IN ('건물주', '건물주자제분')
+GROUP BY 
+	CASE
+		WHEN substr(address, 1, instr(address, ' ') - 1) = '서울특별시' THEN 1
+	END AS 서울,
+	CASE
+		WHEN substr(address, 1, instr(address, ' ') - 1) <> '서울특별시' THEN 1
+	END AS 지방;
+
+	
+
+
+/*
+select 컬럼리스트		--5. 컬럼 지정(보고싶은 컬럼만 가져오기)
+from 테이블				--1. 테이블 지정
+where 조건				--2. 조건 지정(레코드에 대한 조건 - 개인 조건 > 컬럼)
+group by 기준			--3. 레코드(==행)끼리 그룹을 나눈다.
+having 조건				--4. 조건 지정(그룹에 대한 조건 - 그룹 조건)
+order by 정렬기준;		--6. 순서대로
+*/
+
+-------------------------------------------------------------------------------------------------------
+--문제7.sql
+--서브쿼리
+
+--16. tblAddressBook. 남자 평균 나이보다 나이가 많은 서울 태생 + 직업을 가지고 있는 사람들을 가져오시오.
+
+
+-- employees. 'Munich' 도시에 위치한 부서에 소속된 직원들 명단?
+
+
+-- tblMan. tblWoman. 서로 짝이 있는 사람 중 남자와 여자의 정보를 모두 가져오시오.
+--    [남자]        [남자키]   [남자몸무게]     [여자]    [여자키]   [여자몸무게]
+--    홍길동         180       70              장도연     177        65
+--    아무개         175       null            이세영     163        null
+--    ..
+
+
+-- tblAddressBook. 가장 많은 사람들이 가지고 있는 직업은 주로 어느 지역 태생(hometown)인가?
+
+
+-- tblAddressBook. 이메일 도메인들 중 평균 아이디 길이가 가장 긴 이메일 사이트의 도메인은 무엇인가?
+
+
+-- tblAddressBook. 평균 나이가 가장 많은 출신(hometown)들이 가지고 있는 직업 중 가장 많은 직업은?
+
+
+-- tblAddressBook. 남자 평균 나이보다 나이가 많은 서울 태생 + 직업을 가지고 있는 사람들을 가져오시오.
+
+
+-- tblAddressBook. 가장 나이가 많으면서 가장 몸무게가 많이 나가는 사람과 같은 직업을 가지는 사람들을 가져오시오.
+
+-- tblAddressBook.  동명이인이 여러명 있습니다. 이 중 가장 인원수가 많은 동명이인(모든 이도윤)의 명단을 가져오시오.
+
+
+-- tblAddressBook. 가장 사람이 많은 직업의(332명) 세대별 비율을 구하시오.
+--    [10대]       [20대]       [30대]       [40대]
+--    8.7%        30.7%        28.3%        32.2%
+
+
+
+
