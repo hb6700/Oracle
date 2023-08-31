@@ -75,7 +75,6 @@ SELECT
 FROM tblinsa
 GROUP BY buseo;
 --------------------------------------------------------------------------------
-
 --------------------------------------------------------------------------------
 --[다중그룹]
 SELECT
@@ -167,13 +166,90 @@ HAVING avg(basicpay) >= 1500000;		--(3). 그룹에 대한 조건 : 그룹평균 
 
 --HAVING basicpay >= 1500000			--ORA-00907: missing right parenthesis
 --------------------------------------------------------------------------------
+--부서의 인원수가 10명이 넘는 결과
+SELECT 
+	buseo,
+	count(*)
+FROM tblinsa
+GROUP BY buseo
+HAVING count(*) > 10;
+--------------------------------------------------------------------------------
+--부서의 과장/부장(where) 인원수가 3명이 넘는(having) 결과
+SELECT buseo, count(*) AS "count(*)"	--결과(부서명, 집계함수 결과)를 보여줘
+FROM tblinsa							--tblinsa테이블에서
+WHERE jikwi IN ('과장', '부장')			--직위가 과장 부장인 사람들을 세봐
+GROUP BY buseo							--부서로 묶어
+HAVING count(*) >= 3;					--그 묶인 부서의 집계함수(과장 부장 인원)이 3 이상인거만
+--------------------------------------------------------------------------------
+--job_id 그룹 > 통계
+SELECT job_id, count(*) AS 인원수, round(avg(salary)) AS 평균급여
+FROM employees
+GROUP BY job_id;
+--------------------------------------------------------------------------------
+--시도별 인원수?
+SELECT * FROM tbladdressbook;
+--substr(컬럼, 시작위치, 문자개수)
+SELECT substr(address, 1, instr(address,  ' ')) FROM tbladdressbook;
+
+SELECT * FROM tbladdressbook WHERE name = '박영후';
+
+DELETE FROM tbladdressbook WHERE seq > 2000;
+COMMIT;
+
+SELECT substr(address, 1, instr(address, ' ') - 1) AS 시도, count(*) AS 인원수
+FROM tbladdressbook
+GROUP BY substr(address, 1, instr(address, ' ') -1)
+ORDER BY 인원수 desc;
+--------------------------------------------------------------------------------
+--부서별/직급별 인원수를 가져오시오.
+/*
+[부서명] [총 인원] [부장] [과장] [대리] [사원]
+기획부   	6 		 1 		 1	    2	   2 
+*/
+SELECT 
+	buseo AS 부서명, 
+	count(*) AS 총인원, 
+	count(decode(jikwi, '부장', 1)) AS 부장,
+	count(decode(jikwi, '과장', 1)) AS 과장,
+	count(decode(jikwi, '대리', 1)) AS 대리,
+	count(decode(jikwi, '사원', 1)) AS 사원
+FROM tblinsa
+GROUP BY buseo;
 
 --------------------------------------------------------------------------------
-
+SELECT buseo, jikwi, count(*)
+FROM tblinsa
+GROUP BY buseo, jikwi
+ORDER BY buseo, jikwi;
 --------------------------------------------------------------------------------
+/*
+rollup()
+- group by의 집계결과를 좀 더 자세하게 반환
+- 그룹별 중간 통계
+*/
+SELECT buseo, count(*), sum(basicpay), round(avg(basicpay)), max(basicpay), min(basicpay)
+FROM tblinsa
+GROUP BY ROLLUP(buseo);
 
+--2차그룹
+SELECT buseo, jikwi, count(*), sum(basicpay), round(avg(basicpay)), max(basicpay), min(basicpay)
+FROM tblinsa
+GROUP BY ROLLUP(buseo, jikwi);
 --------------------------------------------------------------------------------
+/*
+cube()
+- group by의 집계결과를 좀 더 자세하게 반환
+- 그룹별 중간 통계
+*/
+SELECT buseo, count(*), sum(basicpay), round(avg(basicpay)), max(basicpay), min(basicpay)
+FROM tblinsa
+GROUP BY CUBE(buseo);
 
+--2차그룹
+SELECT buseo, jikwi, count(*), sum(basicpay), round(avg(basicpay)), max(basicpay), min(basicpay)
+FROM tblinsa
+GROUP BY CUBE(buseo, jikwi);
+
+--rollup > 다중그룹 컬럼 > 수직관계(전체 인원 총계 , 부서별 통계)
+--cube > 다중 그룹 컬럼 > 수평관계(전체인원 총계, 부서별 통계, 직위별 통계)
 --------------------------------------------------------------------------------
-
-
