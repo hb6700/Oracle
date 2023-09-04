@@ -1,5 +1,17 @@
 --ex26_hierarchical_sql
 
+/*
+numrow
+- 오라클 전용
+- MS-SQL(top n)
+- MySQL(limit n, m)
+
+계층형 쿼리(Hierarchical Query)
+- 오라클 전용 쿼리
+- 레코드의 관계가 서로간에 상하 수직 구조인 경우에 사용
+- 자기 참조를 하는 테이블에서 사용 > 셀프 조인
+- 자바의 트리구조
+*/
 
 SELECT * FROM tblself;
 

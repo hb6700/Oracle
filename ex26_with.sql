@@ -1,5 +1,4 @@
 --ex28_with.sql
-
 /*
 [WITH <Sub Query>]
 SELECT column_list

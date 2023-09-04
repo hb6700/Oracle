@@ -1,7 +1,13 @@
 --ex25_transaction.sql
 /*
+트랜잭션(Transaction)
+- 데이터를 조작하는 업무의 물리적(시간적) 단위(행동의 범위)
+- 한개 이상의 명령어를 묶어놓은 단위
 
-
+트랜젝션 관련 명령어,  DCL(TCL)
+1. commit
+2. rollback
+3. savepoint
 */
 
 CREATE TABLE tblTrans

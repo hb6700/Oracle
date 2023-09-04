@@ -1,5 +1,4 @@
---ex25_rank.sql
-
+--ex27_rank.sql
 /*
 순위 함수
 - rownum기반으로 만들어진 함수
