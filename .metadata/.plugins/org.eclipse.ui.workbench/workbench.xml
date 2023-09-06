@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workbench progressCount="8" version="2.0">
+<workbench progressCount="14" version="2.0">
 <workbenchAdvisor/>
-<window height="1047" maximized="true" width="783" x="-7" y="0">
+<window height="1047" width="974" x="953" y="0">
 <fastViewData fastViewLocation="1024"/>
 <perspectiveBar>
 <itemSize x="160"/>
@@ -27,15 +27,23 @@
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
 <part id="0"/>
 <part id="1"/>
+<part id="2"/>
+<part id="3"/>
 </presentation>
 </folder>
 </info>
 </editorArea>
-<editor id="com.tomato.exerd.editor.DiagramEditor" name="수업.exerd" partName="수업.exerd" path="C:/class/code/oracle/OracleTest/수업.exerd" title="수업.exerd" tooltip="OracleTest/수업.exerd" workbook="DefaultEditorWorkbook">
+<editor id="com.tomato.exerd.editor.DiagramEditor" name="비디오.exerd" partName="비디오.exerd" path="C:/class/code/oracle/Oracle/OracleTest/비디오.exerd" title="비디오.exerd" tooltip="OracleTest/비디오.exerd" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/OracleTest/비디오.exerd"/>
+</editor>
+<editor id="com.tomato.exerd.editor.DiagramEditor" name="hr.exerd" partName="hr.exerd" path="C:/class/code/oracle/Oracle/OracleTest/hr.exerd" title="hr.exerd" tooltip="OracleTest/hr.exerd" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/OracleTest/hr.exerd"/>
+</editor>
+<editor id="com.tomato.exerd.editor.DiagramEditor" name="수업.exerd" partName="수업.exerd" path="C:/class/code/oracle/Oracle/OracleTest/수업.exerd" title="수업.exerd" tooltip="OracleTest/수업.exerd" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/OracleTest/수업.exerd"/>
 </editor>
-<editor activePart="true" focus="true" id="com.tomato.exerd.editor.DiagramEditor" name="hr.exerd" partName="hr.exerd" path="C:/class/code/oracle/OracleTest/hr.exerd" title="hr.exerd" tooltip="OracleTest/hr.exerd" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/OracleTest/hr.exerd"/>
+<editor activePart="true" focus="true" id="com.tomato.exerd.editor.DiagramEditor" name="3조.exerd" partName="3조.exerd" title="3조.exerd" tooltip="C:\class\code\oracle\Oracle\OracleTest\3조.exerd" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" uri="file:/C:/class/code/oracle/Oracle/OracleTest/3조.exerd"/>
 </editor>
 </editors>
 <views>
@@ -44,6 +52,13 @@
 <filters>
 <filter element=".*" isEnabled="false"/>
 </filters>
+<expanded>
+<element path="/eXERD-Samples"/>
+<element path="/OracleTest"/>
+</expanded>
+<selection>
+<element path="/OracleTest/비디오.exerd"/>
+</selection>
 </viewState>
 </view>
 <view id="com.tomato.exerd.ui.views.thumbnail" partName="썸네일">
@@ -117,8 +132,8 @@
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
 </folder>
 </info>
-<info part="org.eclipse.ui.editorss" ratio="0.14643304" ratioLeft="117" ratioRight="682" relationship="2" relative="leftFolder"/>
-<info folder="true" part="org.eclipse.ui.internal.ViewStack@13f3ba0" ratio="0.80854195" ratioLeft="549" ratioRight="130" relationship="2" relative="org.eclipse.ui.editorss">
+<info part="org.eclipse.ui.editorss" ratio="0.11576742" ratioLeft="221" ratioRight="1688" relationship="2" relative="leftFolder"/>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@13f3ba0" ratio="0.84332347" ratioLeft="1421" ratioRight="264" relationship="2" relative="org.eclipse.ui.editorss">
 <folder activePageID="com.tomato.exerd.ui.views.thumbnail" appearance="2" expanded="2">
 <page content="com.tomato.exerd.ui.views.thumbnail" label="썸네일"/>
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
@@ -136,8 +151,8 @@
 </presentation>
 </folder>
 </info>
-<info folder="true" part="bottomFolder" ratio="0.6996904" ratioLeft="452" ratioRight="194" relationship="4" relative="org.eclipse.ui.editorss">
-<folder activePageID="org.eclipse.ui.console.ConsoleView" appearance="2" expanded="2">
+<info folder="true" part="bottomFolder" ratio="0.8861439" ratioLeft="825" ratioRight="106" relationship="4" relative="org.eclipse.ui.editorss">
+<folder activePageID="com.tomato.exerd.ui.views.domain" appearance="2" expanded="2">
 <page content="com.tomato.exerd.ui.views.domain" label="도메인"/>
 <page content="com.tomato.exerd.validate.ui.ValidateView" label="검토"/>
 <page content="org.eclipse.ui.console.ConsoleView" label="콘솔"/>
@@ -168,6 +183,9 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/eXERD-Samples/study.exerd"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/OracleTest/수업.exerd"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/OracleTest/hr.exerd"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/OracleTest/수업.exerd"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/OracleTest/비디오.exerd"/>
+<editor factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" uri="file:/C:/class/code/oracle/Oracle/OracleTest/3조.exerd"/>
 </editors>
 <item historyLabel="pos.exerd" index="0"/>
 <item historyLabel="study.exerd" index="1"/>
@@ -181,7 +199,11 @@
 <item historyLabel="수업.exerd" index="2"/>
 <item historyLabel="hr.exerd" index="3"/>
 <item historyLabel="수업.exerd" index="2"/>
-<item active="true" historyLabel="hr.exerd" index="3"/>
+<item historyLabel="hr.exerd" index="3"/>
+<item historyLabel="수업.exerd" index="4"/>
+<item historyLabel="hr.exerd" index="3"/>
+<item historyLabel="비디오.exerd" index="5"/>
+<item active="true" historyLabel="3조.exerd" index="6"/>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
 </page>
@@ -199,11 +221,14 @@
 </trimLayout>
 </window>
 <mruList>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="hr.exerd" tooltip="OracleTest/hr.exerd">
-<persistable path="/OracleTest/hr.exerd"/>
+<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="3조.exerd" tooltip="C:\class\code\oracle\Oracle\OracleTest\3조.exerd">
+<persistable uri="file:/C:/class/code/oracle/Oracle/OracleTest/3조.exerd"/>
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="수업.exerd" tooltip="OracleTest/수업.exerd">
 <persistable path="/OracleTest/수업.exerd"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="hr.exerd" tooltip="OracleTest/hr.exerd">
+<persistable path="/OracleTest/hr.exerd"/>
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="study.exerd" tooltip="eXERD-Samples/study.exerd">
 <persistable path="/eXERD-Samples/study.exerd"/>
