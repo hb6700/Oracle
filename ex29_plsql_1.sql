@@ -1,4 +1,3 @@
-
 /*
   	명령어 실행 > 처리 과정
   	
@@ -287,6 +286,20 @@ select * from tblProject;
 
 delete from tblStaff;
 delete from tblProject;
+
+CREATE TABLE tblStaff(
+	seq NUMBER PRIMARY KEY,
+	name varchar2(30) not null,
+    salary number not null, 
+    address varchar2(30) not null
+);
+
+CREATE TABLE tblProject(
+	seq NUMBER PRIMARY KEY,
+	project varchar2(30) not null,
+	staff_seq number not null references tblStaff(seq)
+);
+
 
 INSERT INTO tblStaff (seq, name, salary, address) VALUES (1, '홍길동', 300, '서울시');
 INSERT INTO tblStaff (seq, name, salary, address) VALUES (2, '아무개', 250, '인천시');
