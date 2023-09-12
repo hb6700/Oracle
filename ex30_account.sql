@@ -72,3 +72,24 @@ ALTER user team account unlock;
 
 --안쓰면 삭제하셈
 --ALTER user 계정명 identified by 암호;
+
+
+
+------------------------------------------------
+-- 과목 시험지
+CREATE TABLE tblExam (
+	exam_seq              NUMBER         PRIMARY KEY,               -- 시험지 번호
+	examType             VARCHAR(255)  NOT NULL,                   -- 실기/필기
+	examFile               VARCHAR(255)  NOT NULL,                   -- 시험문제파일
+	courseSubject_seq   NUMBER         NOT NULL REFERENCES tblScore(courseSubject_seq)
+);
+
+select * from tblexam;
+
+create table tblScore(   
+  courseSubject_seq    Number  NOT NULL Primary key,
+courseSubjectStartDate Number NOT NULL,
+couseSubjectEndDate   Number NOT NULL
+);
+
+create sequence seqcourseSubject;
