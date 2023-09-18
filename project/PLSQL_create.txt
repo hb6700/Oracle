@@ -1,0 +1,460 @@
+------------------------------------------------------------------------------------------------------------------------
+--2.1
+create or replace procedure procTeacherSchedule(sq in number)
+as
+    v_current_date date := sysdate; -- 현재 날짜를 가져옴
+    v_course_status varchar2(20); -- 강의 상태를 저장할 변수 
+begin
+    for rec in(
+		SELECT
+			s.subject_seq AS "과목번호", 
+			cn.courseName AS "과정명", 
+			c.courseStartDate AS "과정 시작일", 
+			c.courseEndDate AS "과정 종료일", 
+			s.subject AS "과목명", 
+			cs.courseSubjectStartDate AS "과목 시작일", 
+			cs.couseSubjectEndDate AS "과목 종료일",         --courseEndDate(X), couseEndDate(O) 
+			cr.room_seq AS "강의실", 
+			t.textBook AS "교재명"
+		from tblCourse c
+		    INNER JOIN tblCourseRoom cr ON c.room_seq = cr.room_seq
+		    INNER JOIN tblCourseStatus ccs ON c.courseStatus_seq = ccs.courseStatus_seq
+		    INNER JOIN tblcourseName cn ON c.courseName_seq = cn.courseName_seq
+		    INNER JOIN tblCourseSubject cs ON c.course_seq = cs.course_seq
+		    INNER JOIN tblTextbook t ON cs.textBook_seq = t.textBook_seq
+		    INNER JOIN tblSubjectAvailability sa ON cs.subjectAvailability_seq = sa.subjectAvailability_seq
+		    INNER JOIN tblSubject s ON sa.subject_seq = s.subject_seq
+		    WHERE s.subject_seq = sq
+		    ORDER BY s.subject_seq DESC
+	)
+    loop
+        -- 강의 상태 계산
+        IF v_current_date < rec."과정 시작일" THEN
+            v_course_status := '강의예정';
+        ELSIF v_current_date >= rec."과정 시작일" AND v_current_date <= rec."과정 종료일" THEN
+            v_course_status := '강의중';
+        ELSE
+            v_course_status := '강의종료';
+        END IF;
+        
+        dbms_output.put_line('과정명 : ' || rec."과정명" || '(' || rec."강의실" || '강의실)');
+        dbms_output.put_line('과정 기간 : ' || rec."과정 시작일" || ' ~ ' || rec."과정 종료일");
+        dbms_output.put_line('과목명 : ' || rec."과목명" || '  교재 : ' || rec."교재명");
+        dbms_output.put_line('과목 기간 : ' || rec."과목 시작일" || ' ~ ' || rec."과목 종료일");
+        dbms_output.put_line('강의 상태 : ' || v_course_status);
+        DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+    end loop;                            
+end procTeacherSchedule;
+
+--2.2
+CREATE OR REPLACE PROCEDURE procStudentInfo(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT 
+			s.student_seq AS "학생번호",
+			s.studentName  AS "학생명", 
+			s.studentTel AS "전화번호", 
+			c.courseStartDate AS "등록일", 
+			cs.completeState AS "수료여부",
+		    1 || '회' AS "수강신청 횟수"
+	    FROM tblCourseReg cr
+		INNER JOIN tblStudent s ON cr.student_seq = s.student_seq
+		INNER JOIN tblCompleteState cs ON cs.completeState_seq = cr.completeState_seq
+		INNER JOIN tblCourse c ON c.course_seq = cr.course_seq
+		WHERE s.student_seq = sq
+		ORDER BY s.studentName ASC
+	)
+	LOOP
+		dbms_output.put_line('학생명 : ' || rec."학생명" || '(' || rec."전화번호" || ')');
+		dbms_output.put_line('등록일 : ' || rec."등록일");
+		dbms_output.put_line('수강신청 횟수 : ' || rec."수강신청 횟수");
+		dbms_output.put_line('수료여부 : ' || rec."수료여부");
+	END LOOP;
+END procStudentInfo;
+------------------------------------------------------------------------------------------------------------------------
+--3.1
+CREATE OR REPLACE PROCEDURE procCourseSubjectInfo(sq IN number)
+AS
+BEGIN
+    FOR rec IN (
+        SELECT 
+           s.subject_seq AS "과목번호", 
+           cn.courseName AS "과정명", 
+           c.courseStartDate AS "과정 시작일", 
+           c.courseEndDate AS "과정 종료일", 
+           s.subject AS "과목명", 
+           cs.courseSubjectStartDate AS "과목 시작일", 
+           cs.couseSubjectEndDate AS "과목 종료일", 
+           cr.room_seq || '강의실' AS "강의실", 
+           t.textBook AS "교재명",
+           p.attendPoint AS "출결배점", 
+           p.wPoint AS "필기배점", 
+           p.pPoint AS "실기배점",
+           CASE
+               WHEN SYSDATE > cs.couseSubjectEndDate THEN '종료'
+               ELSE '진행 중'
+           END AS "과목상태"
+        FROM tblCourse c
+        INNER JOIN tblCourseRoom cr ON c.room_seq = cr.room_seq
+        INNER JOIN tblCourseStatus ccs ON c.courseStatus_seq = ccs.courseStatus_seq
+        INNER JOIN tblCourseName cn ON c.courseName_seq = cn.courseName_seq
+        INNER JOIN tblCourseSubject cs ON c.course_seq = cs.course_seq
+           INNER JOIN tblTextbook t ON cs.textBook_seq = t.textBook_seq
+           INNER JOIN tblSubjectAvailability sa ON cs.subjectAvailability_seq = sa.subjectAvailability_seq
+              INNER JOIN tblSubject s ON sa.subject_seq = s.subject_seq
+           INNER JOIN tblPoint p ON p.courseSubject_seq = cs.courseSubject_seq
+        WHERE s.subject_seq = sq
+        ORDER BY 3 ASC
+    )
+    LOOP
+        IF rec."과목상태" = '종료' THEN
+            dbms_output.put_line('과정명 : ' || rec."과정명" || '(' || rec."과정 시작일" || ' ~ ' || rec."과정 종료일" || ')');
+            dbms_output.put_line('과목명 : ' || rec."과목명" || '(' || rec."과목 시작일" || ' ~ ' || rec."과목 종료일" || ')');
+            dbms_output.put_line('강의실 : ' || rec."강의실");
+            dbms_output.put_line('교재명 : ' || rec."교재명");
+            dbms_output.put_line('배점 : [' || '출결 : ' || rec."출결배점" || ' 필기 : ' || rec."필기배점" || ' 실기 : ' || rec."실기배점" || ']');
+        	DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+           END IF;
+    END LOOP;
+END procCourseSubjectInfo;
+
+--3.2
+CREATE OR REPLACE PROCEDURE procUpdatePoint(cs IN NUMBER, ap IN NUMBER, wp IN NUMBER, pp IN NUMBER)
+AS
+    totalPoint NUMBER;
+BEGIN
+    -- 세 배점의 합 계산
+    totalPoint := ap + wp + pp;
+    
+    -- 출결배점이 20점 이하인 경우 예외 처리
+    IF ap < 20 THEN
+        dbms_output.put_line('출결점수는 20점 이상이어야 합니다.');
+        RETURN; -- 예외 발생 시 프로시저 종료
+    END IF;
+    
+    -- 세 배점의 합이 100이 아닌 경우 예외 처리
+    IF totalPoint <> 100 THEN
+        dbms_output.put_line('출결점수, 필기점수, 실기점수의 합은 100이어야 합니다.');
+        RETURN; -- 예외 발생 시 프로시저 종료
+    END IF;
+
+    -- 예외가 발생하지 않으면 점수 업데이트
+    UPDATE TBLPOINT
+    SET
+        attendPoint = ap,
+        wPoint = wp,
+        pPoint = pp
+    WHERE courseSubject_seq = cs;
+    -- COMMIT; -- 커밋 필요 시 주석 해제
+EXCEPTION
+    WHEN OTHERS THEN
+        dbms_output.put_line('오류입니다');
+        -- ROLLBACK; -- 롤백하여 트랜잭션 롤백 (예외 발생 시)
+        -- RAISE; -- 예외를 다시 발생시켜 상위 레벨로 전파
+END procUpdatePoint;
+------------------------------------------------------------------------------------------------------------------------
+--4.1
+CREATE OR REPLACE PROCEDURE procEndCourseInfo(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT 
+		   s.subject_seq AS "과목번호", 
+		   cn.courseName AS "과정명", 
+		   c.courseStartDate AS "과정 시작일", 
+		   c.courseEndDate AS "과정 종료일", 
+		   s.subject AS "과목명", 
+		   cs.courseSubjectStartDate AS "과목 시작일", 
+		   cs.couseSubjectEndDate AS "과목 종료일",         --courseEndDate(X), couseEndDate(O) 
+		   cr.room_seq || '강의실' AS "강의실", 
+		   t.textBook AS "교재명",
+		   p.attendPoint AS "출결배점", 
+		   p.wPoint AS "필기배점", 
+		   p.pPoint AS "실기배점",
+		   CASE
+		      WHEN attendScore is not NULL AND wScore is not NULL AND pScore is not NULL THEN 'Y'
+		      ELSE 'N'
+		   END AS "성적 등록 여부"
+		FROM tblCourse c
+		INNER JOIN tblCourseRoom cr ON c.room_seq = cr.room_seq
+		INNER JOIN tblCourseStatus ccs ON c.courseStatus_seq = ccs.courseStatus_seq
+		INNER JOIN tblcourseName cn ON c.courseName_seq = cn.courseName_seq
+		INNER JOIN tblCourseSubject cs ON c.course_seq = cs.course_seq
+		   INNER JOIN tblTextbook t ON cs.textBook_seq = t.textBook_seq
+		   INNER JOIN tblSubjectAvailability sa ON cs.subjectAvailability_seq = sa.subjectAvailability_seq
+		      INNER JOIN tblSubject s ON sa.subject_seq = s.subject_seq
+		   INNER JOIN tblPoint p ON p.courseSubject_seq = cs.courseSubject_seq
+		      INNER JOIN tblAllScore a ON a.pointNum = p.pointNum
+		WHERE s.subject_seq = sq
+		ORDER BY 1 ASC
+	)
+	LOOP
+		dbms_output.put_line('과정명 : ' || rec."과정명" || '(' || rec."과정 시작일" || ' ~ ' || rec."과정 종료일" || ')');
+		dbms_output.put_line('과목명 : ' || rec."과목명" || '(' || rec."과목 시작일" || ' ~ ' || rec."과목 종료일" || ')');
+		dbms_output.put_line('강의실 : ' || rec."강의실");
+		dbms_output.put_line('교재명 : ' || rec."교재명");
+		dbms_output.put_line('[출결배점 : ' || rec."출결배점" || ' 필기배점 : ' || rec."필기배점" || ' 실기배점 : ' || rec."실기배점" || ']');
+		dbms_output.put_line('성적 등록 여부 : ' || rec."성적 등록 여부");
+		DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+	END LOOP;
+END procEndCourseInfo;
+
+--4.2
+CREATE OR REPLACE PROCEDURE procStudentScore(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT
+		   s.studentName AS "교육생 이름",
+		   s.studentTel AS "전화번호",
+		   cs.completeState AS "수료여부",
+		   a.attendScore AS "출석점수",
+		   a.wScore AS "필기성적",
+		   a.pScore AS "실기성적",
+		   sub.subject AS "과목명",
+		   cn.courseName AS "과정명"
+		FROM tblStudent s
+		INNER JOIN tblAllScore a ON s.student_seq = a.student_seq
+		INNER JOIN tblCourseReg cr ON s.student_seq = cr.student_seq
+		   INNER JOIN tblCompleteState cs ON cs.completeState_seq = cr.completeState_seq
+		   INNER JOIN tblCourse c ON c.course_seq = cr.course_seq
+		   		INNER JOIN tblCourseName cn ON cn.courseName_seq = c.courseName_seq
+		INNER JOIN tblCourseSubject css ON c.course_seq =  css.course_seq
+			INNER JOIN tblSubjectAvailability sa ON sa.subjectAvailability_seq = css.subjectavailability_seq
+				INNER JOIN tblSubject sub ON sub.subject_seq = sa.subject_seq
+		WHERE s.student_seq = sq
+		ORDER BY 1 ASC
+	)
+	LOOP
+		dbms_output.put_line('교육생 이름 : ' || rec."교육생 이름" || '(' || rec."전화번호" || ')');
+		dbms_output.put_line('과정명 : ' ||rec."과정명");
+		dbms_output.put_line('수료여부 : ' || rec."수료여부");
+		dbms_output.put_line('과목명 : ' || rec."과목명");		
+		dbms_output.put_line('출석점수 : ' || rec."출석점수" || ' 필기성적 : ' || rec."필기성적" || ' 실기성적 : ' || rec."실기성적");
+		DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+	END LOOP;
+END procStudentScore;
+
+--4.3
+CREATE OR REPLACE PROCEDURE procUpdateScore(sq IN NUMBER, pn IN NUMBER, a IN NUMBER, ws IN NUMBER, ps IN number)
+AS
+BEGIN
+    UPDATE tblAllScore 
+	SET 
+		attendScore = a,
+		wScore = ws,
+		pScore = ps
+	WHERE student_seq = sq AND pointNum = pn;
+EXCEPTION
+    WHEN OTHERS THEN
+        dbms_output.put_line('오류입니다');
+END procUpdateScore;
+------------------------------------------------------------------------------------------------------------------------
+--5.1
+CREATE OR REPLACE PROCEDURE procTeacherCourseCheck(ts IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT 
+			t.teacherName AS "이름", 
+			t.teacherTel AS "전화번호",
+			cn.courseName AS "과정명",
+			s.subject AS "과목명",
+			cs.courseSubjectStartDate AS "과목 시작일",
+			cs.couseSubjectEndDate AS "과목 종료일"
+		FROM tblcourseSubject cs
+		INNER JOIN tblcourse c ON c.course_seq = cs.course_seq
+			INNER JOIN tblCourseName cn ON cn.courseName_seq = c.courseName_seq
+		INNER JOIN tblSubjectAvailability sa ON sa.subjectAvailability_seq = cs.subjectAvailability_seq
+			INNER JOIN tblSubject s ON s.subject_seq = sa.subject_seq
+			INNER JOIN tblTeacher t ON t.teacher_seq = sa.teacher_seq
+		WHERE t.teacher_seq = ts
+		ORDER BY cs.courseSubjectStartDate asc
+	)
+	LOOP
+		dbms_output.put_line('이름 : ' || rec."이름");
+		dbms_output.put_line('전화번호 : ' || rec."전화번호");
+		dbms_output.put_line('과정명 : ' || rec."과정명");
+		dbms_output.put_line('과목명 : ' || rec."과목명");
+		dbms_output.put_line('과목 시작일 : ' || rec."과목 시작일" || ' 과목 종료일 : ' || rec."과목 종료일");
+	END LOOP;
+END procTeacherCourseCheck;
+
+--5.2
+CREATE OR REPLACE PROCEDURE procStudentAllDateAttend(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT
+			s.student_seq AS "학생번호",
+			s.studentName AS "학생 이름",
+			a.attendDate AS "출결 날짜",
+			a.attendStartTime AS "등원시간",
+			a.attendEndTime AS "하원시간",
+			tas.attendState AS "출결상태"	
+		FROM tblAttend a
+		INNER JOIN tblAttendState tas ON tas.attendState_seq = a.attendState_seq
+		INNER JOIN tblStudent s ON s.student_seq = a.student_seq
+		WHERE s.student_seq = sq
+		ORDER BY s.studentName ASC
+	)
+	LOOP
+		dbms_output.put_line('학생번호 : ' || rec."학생번호");
+		dbms_output.put_line('학생 이름 : ' || rec."학생 이름");
+		dbms_output.put_line('출결 날짜 : ' || rec."출결 날짜");
+		dbms_output.put_line('등원시간 : ' || rec."등원시간" || ' 하원시간 : ' || rec."하원시간");
+		dbms_output.put_line('출결상태 : ' || rec."출결상태");
+	END LOOP;
+END procStudentAllDateAttend;
+
+--5.3
+CREATE OR REPLACE PROCEDURE procCheckAttend(inputDate IN DATE, sq IN number)
+AS
+BEGIN
+    FOR rec IN (
+        SELECT
+            s.student_seq AS "학생번호",
+            s.studentName AS "학생이름",
+            a.attendDate AS "출결날짜",
+            a.attendStartTime AS "등원시간",
+            a.attendEndTime AS "하원시간",
+            tas.attendState AS "출결상태"    
+        FROM tblAttend a 
+        INNER JOIN tblAttendState tas ON tas.attendState_seq = a.attendState_seq
+        INNER JOIN tblStudent s ON s.student_seq = a.student_seq
+        WHERE a.attendDate > inputDate AND s.student_seq = sq
+        ORDER BY s.studentName, a.attendDate ASC
+    )
+    LOOP
+        dbms_output.put_line('학생이름 : ' || rec."학생이름");
+        dbms_output.put_line('출결날짜 : ' || rec."출결날짜" || '(' || rec."출결상태" || ')');
+        dbms_output.put_line('등원시간 : ' || rec."등원시간" || ' | ' || '하원시간 : ' || rec."하원시간");
+        DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        dbms_output.put_line('오류 발생');
+END procCheckAttend;
+
+--5.4
+CREATE OR REPLACE PROCEDURE procStudentAttendInfo(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT
+			s.studentName AS "학생 이름",
+			a.attendDate AS "출결날짜",
+			a.attendStartTime AS "등원시간",
+			a.attendEndTime AS "하원시간",
+			tas.attendState AS "출결상태"	
+		FROM tblAttend a 
+		INNER JOIN tblAttendState tas ON tas.attendState_seq = a.attendState_seq
+		INNER JOIN tblStudent s ON s.student_seq = a.student_seq
+		WHERE s.student_seq = sq
+		ORDER BY a.attendDate ASC
+	)
+	LOOP
+		dbms_output.put_line('학생 이름 : ' || rec."학생 이름");
+		dbms_output.put_line('출결날짜 : ' || rec."출결날짜" || ' 출결상태 : ' || rec."출결상태");
+		dbms_output.put_line('등원시간 : ' || rec."등원시간" || ' 하원시간 : ' || rec."하원시간");
+	END LOOP;
+END procStudentAttendInfo;
+
+--5.5
+
+------------------------------------------------------------------------------------------------------------------------
+--6.1
+CREATE OR REPLACE PROCEDURE procEndCourseInfo(cseq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT 
+			DISTINCT cn.courseName AS "과정명",
+			c.courseStartDate AS "과정시작일",
+			c.courseEndDate AS "과정종료일",
+			cr.completeDate AS "수료일",
+			cs.courseStatus AS "과정 진행상태"
+		FROM tblCourse c
+		INNER JOIN tblCourseReg cr ON c.course_seq = cr.course_seq
+		INNER JOIN tblCourseName cn ON cn.courseName_seq = c.courseName_seq
+		INNER JOIN tblCourseStatus cs ON cs.courseStatus_seq = c.courseStatus_seq
+		WHERE c.course_seq = cseq
+	)
+	LOOP
+		dbms_output.put_line('과정명 : ' || rec."과정명");
+		dbms_output.put_line('과정시작일 : ' || rec."과정시작일" || ' ~ ' || rec."과정종료일");
+		dbms_output.put_line('수료일 : ' || rec."수료일" || '(' ||rec."과정 진행상태" || ')');		
+	END LOOP;
+END procEndCourseInfo;
+
+--6.2
+CREATE OR REPLACE PROCEDURE procCompletionStudent(sq IN number)
+AS
+BEGIN
+	FOR rec IN(
+		SELECT
+			s.studentName AS "학생명",
+			cn.courseName AS "과정명",
+			cr.completedate AS "수료일",
+			cs.completeState AS "수료여부"
+		FROM tblcourseReg cr
+		INNER JOIN tblStudent s ON s.student_seq = cr.student_seq
+		INNER JOIN tblCompleteState cs ON cs.completeState_seq = cr.completeState_seq
+		INNER JOIN tblCourse c ON c.course_seq = cr.course_seq
+			INNER JOIN tblCourseName cn ON cn.courseName_seq = c.courseName_seq
+		WHERE s.student_seq = sq
+	)
+	LOOP
+		dbms_output.put_line('학생명 : ' || rec."학생명");
+		dbms_output.put_line('과정명 : ' || rec."과정명");
+		dbms_output.put_line('수료일 : ' || rec."수료일" || '(' || rec."수료여부" || ')');
+	END LOOP;
+END procCompletionStudent;
+
+--6.3
+CREATE OR REPLACE PROCEDURE procStudentHireInfo(sq IN number)
+AS
+BEGIN
+   FOR rec IN(
+      SELECT 
+         s.STUDENT_SEQ AS "학생번호",
+         s.studentName AS "학생명",
+         cname.courseName AS "과정명",
+         cs.courseStatus AS "과정진행상태",
+         cr.completedate AS "수료일",
+         cn.certifyName AS "자격증",
+         we.workSpace AS "이전 근무처",
+         we.workStartDate AS "근무 시작일",
+         we.worrEndDate AS "근무 종료일",
+         em.companyName AS "취업기업명",
+         em.hireDate AS "취업일",
+         hd.hopeDutyfield AS "취업 희망 분야",
+         ha.hopeArea AS "희망지역",
+         hd.hopeSalary AS "희망급여"
+      FROM tblStudent s
+         INNER JOIN tblCourseReg cr ON s.student_seq = cr.student_seq
+         INNER JOIN tblCourse c ON c.course_seq = cr.course_seq
+         INNER JOIN tblCourseStatus cs ON cs.courseStatus_seq = c.courseStatus_seq
+         INNER JOIN tblCourseName cname ON cname.courseName_seq = c.courseName_seq
+         LEFT JOIN tblCertify cf ON s.student_seq = cf.student_seq
+         LEFT JOIN tblCertifyName cn ON cn.certifyName_seq = cf.ceritifyName_seq
+         LEFT JOIN tblWorkExperienceRel wer ON s.student_seq = wer.student_seq
+         LEFT JOIN tblWorkExperience we ON we.workExperience_seq = wer.workExperience_seq
+         INNER JOIN tblEmployment em ON s.student_seq = em.student_seq
+         INNER JOIN tblHopeDuty hd ON s.student_seq = hd.student_seq
+         INNER JOIN tblHopeAreaRel har ON hd.hopeDuty_seq = har.hopeDuty_seq
+         INNER JOIN tblHopeArea ha ON ha.hopeArea_seq = har.hopeArea_seq
+         WHERE s.student_seq = sq
+   )
+   LOOP
+      dbms_output.put_line('학생명 : ' || rec."학생명");
+      dbms_output.put_line('과정명 : ' || rec."과정명" || ' > ' || rec."과정진행상태" || ' (수료일 : ' || rec."수료일" || ')');
+      dbms_output.put_line('자격증 : ' || rec."자격증");
+      DBMS_OUTPUT.PUT_LINE('이전 근무처 : ' || rec."이전 근무처" || ' 근무 시작일 : ' || TO_CHAR(rec."근무 시작일", 'RRRR/MM/DD') || ' 근무 종료일 : ' || TO_CHAR(rec."근무 종료일", 'RRRR/MM/DD'));
+      DBMS_OUTPUT.PUT_LINE('취업기업명 : ' || rec."취업기업명" || ' 취업일 : ' || TO_CHAR(rec."취업일", 'RRRR/MM/DD'));
+      dbms_output.put_line('취업 희망 분야 : ' || rec."취업 희망 분야" || ' 희망지역 : ' || rec."희망지역" || ' 희망급여 : ' || rec."희망급여");      
+      DBMS_OUTPUT.PUT_LINE('——————————————————————');
+   END LOOP;
+END procStudentHireInfo;
+------------------------------------------------------------------------------------------------------------------------
