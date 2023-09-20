@@ -1,3 +1,7 @@
+CREATE USER system IDENTIFIED BY java1234;
+
+GRANT connect, resource, dba to system;	
+
 CREATE TABLE member(
 	id varchar2(30) PRIMARY KEY,
 	pass varchar2(100),
@@ -9,8 +13,8 @@ CREATE TABLE member(
 
 CREATE TABLE reservation(
 	res_num NUMBER PRIMARY KEY,
-	id varchar2(30) FOREIGN KEY,
-	movie char(15) FOREIGN KEY,
+	id varchar2(30) REFERENCES MEMBER(id),
+	movie char(15) REFERENCES schedule_movie(movie_code),
 	regdate DATE DEFAULT sysdate
 );
 
@@ -26,37 +30,40 @@ CREATE TABLE director(
 	dr_code NUMBER PRIMARY KEY,
 	dr_name varchar2(50),
 	dr_regdate DATE DEFAULT sysdate,
-	movie_code char(15) FOREIGN KEY
+	movie_code char(15) REFERENCES schedule_movie(movie_code)
 );
 
 ---------------------------------------------------------
 --member
-INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('son', 1234, '손재옥', '남', '010-7361-9876', sysdate);
-INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('kim', 1234, '김영주', '남', '010-6712-7652', sysdate);
-INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('jung', 1234, '정현석', '남', '010-7731-1471', sysdate);
+INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('son', 1234, '손재옥', '남', '010-7361-9876', default);
+INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('kim', 1234, '김영주', '남', '010-6712-7652', default);
+INSERT INTO MEMBER(id, pass, name, gender, tel, regdate) VALUES('jung', 1234, '정현석', '남', '010-7731-1471', default);
 
 --movie
 CREATE SEQUENCE seqmovie_code;
 INSERT INTO schedule_movie(movie_code, mv_title, mv_story, mv_runtime, mv_regdate) 
-VALUES (MV_000000000001, '007 노 타임 투 다이(No time to Die)', '가장 강력한 운명의 적과 마주하게된 제임스 본드의 마지막 미션이 시작된다.', 163, sysdate);
+VALUES ((MV_00000000000 || seqmovie_code.NextVal), '007 노 타임 투 다이(No time to Die)', '가장 강력한 운명의 적과 마주하게된 제임스 본드의 마지막 미션이 시작된다.', 163, default);
 INSERT INTO schedule_movie(movie_code, mv_title, mv_story, mv_runtime, mv_regdate) 
-VALUES (MV_000000000002, '보이스(On the Line)', '단 한 통의 전화!걸려오는 순간 걸려들었다!', 109, sysdate);
+VALUES ((MV_00000000000 || seqmovie_code.NextVal), '보이스(On the Line)', '단 한 통의 전화!걸려오는 순간 걸려들었다!', 109, default);
 INSERT INTO schedule_movie(movie_code, mv_title, mv_story, mv_runtime, mv_regdate) 
-VALUES (MV_000000000003, '수색자(The Recon', '억울하게 죽은 영혼들의 무덤 DMZ', 111, sysdate);
+VALUES ((MV_00000000000 || seqmovie_code.NextVal), '수색자(The Recon', '억울하게 죽은 영혼들의 무덤 DMZ', 111, default);
 INSERT INTO schedule_movie(movie_code, mv_title, mv_story, mv_runtime, mv_regdate) 
-VALUES (MV_000000000004, '기적(Mircle)', '오갈 수 있는 길은 기찻길밖에 없지만 정작 기차역은 없는 마을.', 117, sysdate);
+VALUES ((MV_00000000000 || seqmovie_code.NextVal), '기적(Mircle)', '오갈 수 있는 길은 기찻길밖에 없지만 정작 기차역은 없는 마을.', 117, default);
 
 --director
 CREATE SEQUENCE seqdr_code;
-INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES (DR_000000000001, 캐리 후쿠나가, MV_000000000001);
-INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES (DR_000000000002, 김선 , MV_000000000002);
-INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES (DR_000000000003, 김곡 , MV_000000000002);
-INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES (DR_000000000004, 김민섭 , MV_000000000003);
-INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES (DR_000000000005, 이창훈, MV_000000000004);
+INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES ((DR_00000000000 || seqdr_code.NextVal), 캐리 후쿠나가, default, MV_000000000001);
+INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES ((DR_00000000000 || seqdr_code.NextVal), 김선, default, MV_000000000002);
+INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES ((DR_00000000000 || seqdr_code.NextVal), 김곡, default, MV_000000000002);
+INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES ((DR_00000000000 || seqdr_code.NextVal), 김민섭, default, MV_000000000003);
+INSERT INTO director(dr_code, dr_name, dr_regdate, movie_code) VALUES ((DR_00000000000 || seqdr_code.NextVal), 이창훈, default, MV_000000000004);
 
 --reservation
 CREATE SEQUENCE seqres_num;
-INSERT INTO reservation(res_num, id, movie, regdate) VALUES(, 007, )
+INSERT INTO reservation(res_num, id, movie, regdate) VALUES(seqres_num.NextVal, 'son', MV_000000000002, default);
+INSERT INTO reservation(res_num, id, movie, regdate) VALUES(seqres_num.NextVal, 'son', MV_000000000003, default);
+INSERT INTO reservation(res_num, id, movie, regdate) VALUES(seqres_num.NextVal, 'kim', MV_000000000001, default);
+INSERT INTO reservation(res_num, id, movie, regdate) VALUES(seqres_num.NextVal, 'jung', MV_000000000002, default);
 --“손재옥” 회원이 “보이스”를 예약한다.
 --“손재옥” 회원이 “수색자”를 예약한다.
 --“김영주” 회원이 “007”을 예약한다.
@@ -94,11 +101,8 @@ FROM reservation r
 INNER JOIN MEMBER m ON m.id = r.id
 INNER JOIN schedule_movie sm ON sm.movie_code = r.movie_code
 	INNER JOIN director d ON sm.movie_code = d.movie_code
-WHERE sm.movie_code = 'MV_000000000002'
+WHERE sm.movie_code = '2'
 ORDER BY r.regdate DESC;
 
 
-
-
-
-
+EXP user_yhb/java1234@xe FILE=backup_yhb_5498.dmp;
